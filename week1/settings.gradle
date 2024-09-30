@@ -1,6 +1,5 @@
 rootProject.name = 'networksecurity'
 include 'client'
 include 'server'
-include 'Protocol'
 include 'core'
 

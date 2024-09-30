@@ -15,6 +15,7 @@ public class Connection {
     public Connection(final int port) throws IOException {
         this.socket = new Socket();
         socket.connect(new InetSocketAddress("localhost", port));
+        System.out.println("접속 서버 포트 : " + port);
         outputStream = new BufferedOutputStream(socket.getOutputStream());
     }
 
