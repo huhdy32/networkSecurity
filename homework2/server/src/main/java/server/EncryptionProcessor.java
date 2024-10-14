@@ -2,48 +2,55 @@ package server;
 
 import cipher.CipherFactory;
 import cipher.MyCipherHandler;
+import cipher.rsa.MyRSAKeyPairGenerator;
 import protocol.Cipher;
 import protocol.MessageProtocol;
-import protocol.ProtocolMessage;
+
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Objects;
 
 public class EncryptionProcessor {
-    public String process(final String message) {
-        final String[] splitedMessage = message.split("\n");
-        String cypher = null;
-        String key = null;
+    public KeyPair keyPair;
+
+    public String process(final String message, final BufferedOutputStream bufferedOutputStream) {
         String encryptedMessage = null;
-        for (String temp : splitedMessage) {
-            if (temp.startsWith(MessageProtocol.KEY.name())) {
-                key = temp.split(" ")[1];
+        if (message.startsWith(MessageProtocol.REQUIRE_RSA_PUBLIC_KEY.name())) {
+            if (Objects.isNull(keyPair)) {
+                try {
+                    this.keyPair = new MyRSAKeyPairGenerator().generateKeyPair();
+                } catch (NoSuchAlgorithmException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    bufferedOutputStream.write(Base64.getEncoder().encode(keyPair.getPublic().getEncoded()));
+                    bufferedOutputStream.write("\n".getBytes());
+                    bufferedOutputStream.flush();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            if (temp.startsWith(MessageProtocol.CIPHER_TYPE.name())) {
-                 cypher = temp.split(" ")[1];
-            }
-            if (temp.startsWith(MessageProtocol.ENCRYPTED_MESSAGE.name())) {
-                encryptedMessage = temp.split(" ")[1];
-            }
-        }
-        if (key == null || cypher == null || encryptedMessage == null) {
-            throw new IllegalArgumentException("잘못된 메시지" + message);
+            System.out.println("RESULT : PUBLIC KEY SENDED");
+            return null;
         }
 
-        final MyCipherHandler myCipherHandler = getMyCipher(cypher, key);
-        return myCipherHandler.decrypt(encryptedMessage);
+        if (message.startsWith(MessageProtocol.ENCRYPTED_MESSAGE.name())) {
+            encryptedMessage = message.split(" ")[1];
+            final MyCipherHandler myCipherHandler = getMyCipher("RSA");
+            return myCipherHandler.decrypt(encryptedMessage);
+        }
+        return null;
     }
 
 
-    private MyCipherHandler getMyCipher(final String protocolName, final String key) {
+    private MyCipherHandler getMyCipher(final String protocolName) {
         final Cipher cipher = Cipher.getCipher(protocolName);
         final CipherFactory cipherFactory = new CipherFactory();
-
-        if (cipher.equals(Cipher.AES)) {
-            return new MyCipherHandler(cipherFactory.getAESCipher(key));
-        }
-        if (cipher.equals(Cipher.DES)) {
-            return new MyCipherHandler(cipherFactory.getDESCipher(key));
-        }
-        if (cipher.equals(Cipher.TRIPLE_DES)) {
-            return new MyCipherHandler(cipherFactory.getTripleDESCipher(key));
+        if (cipher.equals(Cipher.RSA)) {
+            return new MyCipherHandler(cipherFactory.getRSACipher(keyPair.getPrivate()));
         }
         throw new IllegalArgumentException("지원하지 않는 Cipher Type");
     }

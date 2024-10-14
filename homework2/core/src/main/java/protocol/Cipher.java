@@ -5,7 +5,8 @@ import java.util.Arrays;
 public enum Cipher {
     DES("DES"),
     TRIPLE_DES("3DES"),
-    AES("AES");
+    AES("AES"),
+    RSA("RSA");
 
     private String name;
 

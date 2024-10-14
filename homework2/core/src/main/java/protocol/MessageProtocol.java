@@ -5,6 +5,7 @@ import java.util.Arrays;
 public enum MessageProtocol {
     KEY("KEY"),
     CIPHER_TYPE("CIPHER_TYPE"),
+    REQUIRE_RSA_PUBLIC_KEY("REQUIRE_RSA_PUBLIC_KEY"),
     ENCRYPTED_MESSAGE("ENCRYPTED_MESSAGE");
 
     private String name;

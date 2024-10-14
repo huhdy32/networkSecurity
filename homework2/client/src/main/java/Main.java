@@ -1,23 +1,27 @@
-import cipher.CipherFactory;
-import cipher.MyCipherHandler;
 import network.Client;
 import protocol.Cipher;
 
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 public class Main {
     private static final int BASIC_PORT = 17872;
 
     public static void main(String[] args) {
-        final String key = "aeskey1234567898";
-        final CipherFactory cipherFactory = new CipherFactory();
-        final MyCipherHandler myCipherHandler = new MyCipherHandler(cipherFactory.getAESCipher(key));
         try {
-            final Client client = new Client(myCipherHandler, getPort(args), Cipher.AES, key);
-            client.sendKey();
+            final Client client = new Client(getPort(args), Cipher.RSA);
+            client.initWithServer();
             client.sendProtocolAndKey();
             client.sendMessage("testMessage Is Sended");
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchPaddingException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
