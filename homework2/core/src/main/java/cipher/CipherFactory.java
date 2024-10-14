@@ -2,6 +2,7 @@ package cipher;
 
 import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
@@ -43,6 +44,16 @@ public class CipherFactory {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         } catch (InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public MyCipher getRSACipher(final Key key) {
+        try {
+            return new MyRSACipher(key);
+        } catch (NoSuchPaddingException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
