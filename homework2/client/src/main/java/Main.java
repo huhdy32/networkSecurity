@@ -13,7 +13,6 @@ public class Main {
         try {
             final Client client = new Client(getPort(args), Cipher.RSA);
             client.initWithServer();
-            client.sendProtocolAndKey();
             client.sendMessage("testMessage Is Sended");
         } catch (IOException e) {
             throw new RuntimeException(e);

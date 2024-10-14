@@ -36,6 +36,7 @@ public class Client {
         X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
         publicKey = keyFactory.generatePublic(spec);
         myCipherHandler = new MyCipherHandler(new MyRSACipher(publicKey));
+        sendProtocolAndKey();
     }
 
     public void sendProtocolAndKey() throws IOException {
